@@ -1,0 +1,8 @@
+{
+  "name": "SHREE SHYAM ENTERPRISE - Payment Portal",
+  "description": "Production-grade Agent & Admin Payment Portal for Shree Shyam Enterprise, featuring BBPS, Credit Card payments, Money Transfer, Wallet ledger, and Reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
