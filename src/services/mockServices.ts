@@ -78,14 +78,74 @@ export const BILLERS_DATABASE: Record<string, BillerItem[]> = {
 };
 
 export const CREDIT_CARD_ISSUERS = [
-  { id: 'HDFC', name: 'HDFC Bank Credit Card', minDuePct: 0.05, logoColor: '#004c8f' },
-  { id: 'SBI', name: 'SBI Card (State Bank of India)', minDuePct: 0.05, logoColor: '#1d71b8' },
-  { id: 'ICICI', name: 'ICICI Bank Credit Card', minDuePct: 0.05, logoColor: '#a62424' },
-  { id: 'AXIS', name: 'Axis Bank Credit Card', minDuePct: 0.05, logoColor: '#97144d' },
-  { id: 'KOTAK', name: 'Kotak Mahindra Bank Card', minDuePct: 0.05, logoColor: '#ed1c24' },
-  { id: 'RBL', name: 'RBL Bank Credit Card', minDuePct: 0.05, logoColor: '#1a3c75' },
-  { id: 'INDUSIND', name: 'IndusInd Bank Credit Card', minDuePct: 0.05, logoColor: '#8a1538' },
-  { id: 'AMEX', name: 'American Express India', minDuePct: 0.05, logoColor: '#006fcf' },
+  // 1. Top Private Sector Banks
+  { id: 'HDFC', name: 'HDFC Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#004c8f' },
+  { id: 'ICICI', name: 'ICICI Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#a62424' },
+  { id: 'AXIS', name: 'Axis Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#97144d' },
+  { id: 'KOTAK', name: 'Kotak Mahindra Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#ed1c24' },
+  { id: 'INDUSIND', name: 'IndusInd Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#8a1538' },
+  { id: 'IDFC', name: 'IDFC FIRST Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#9d1d27' },
+  { id: 'YES', name: 'YES Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#003366' },
+  { id: 'RBL', name: 'RBL Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#1a3c75' },
+  { id: 'FEDERAL', name: 'Federal Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#003e7e' },
+  { id: 'BANDHAN', name: 'Bandhan Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#002f6c' },
+  { id: 'SOUTH_INDIAN', name: 'South Indian Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#8b0000' },
+  { id: 'CITY_UNION', name: 'City Union Bank (CUB) Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#005a9c' },
+  { id: 'KARUR_VYSYA', name: 'Karur Vysya Bank (KVB) Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#c41230' },
+  { id: 'CSB', name: 'CSB Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#12395d' },
+  { id: 'DCB', name: 'DCB Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#dc241f' },
+  { id: 'KARNATAKA', name: 'Karnataka Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#0b4182' },
+  { id: 'JK_BANK', name: 'Jammu & Kashmir (J&K) Bank Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#1b4d3e' },
+  { id: 'TMB', name: 'Tamilnad Mercantile Bank Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#003399' },
+  { id: 'NAINITAL', name: 'Nainital Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#1e3f66' },
+  { id: 'DHANLAXMI', name: 'Dhanlaxmi Bank Credit Card', category: 'Private Sector', minDuePct: 0.05, logoColor: '#800020' },
+
+  // 2. Public Sector / PSU Banks
+  { id: 'SBI', name: 'SBI Card (State Bank of India)', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#1d71b8' },
+  { id: 'BOB', name: 'Bank of Baroda (BOB Financial Card)', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#f26522' },
+  { id: 'PNB', name: 'Punjab National Bank (PNB Card)', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#a21d22' },
+  { id: 'CANARA', name: 'Canara Bank Credit Card', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#0090d0' },
+  { id: 'UNION_BANK', name: 'Union Bank of India Credit Card', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#ed1c24' },
+  { id: 'BOI', name: 'Bank of India (BOI Credit Card)', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#f37023' },
+  { id: 'INDIAN_BANK', name: 'Indian Bank Credit Card', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#0054a6' },
+  { id: 'CENTRAL_BANK', name: 'Central Bank of India Card', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#c8102e' },
+  { id: 'UCO', name: 'UCO Bank Credit Card', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#0083ca' },
+  { id: 'MAHARASHTRA', name: 'Bank of Maharashtra Credit Card', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#f58220' },
+  { id: 'PUNJAB_SIND', name: 'Punjab & Sind Bank Credit Card', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#ffcc00' },
+  { id: 'IOB', name: 'Indian Overseas Bank (IOB Card)', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#003366' },
+  { id: 'IDBI', name: 'IDBI Bank Credit Card', category: 'Public Sector (PSU)', minDuePct: 0.05, logoColor: '#006747' },
+
+  // 3. Small Finance Banks
+  { id: 'AU_SFB', name: 'AU Small Finance Bank Credit Card', category: 'Small Finance Bank', minDuePct: 0.05, logoColor: '#6a1b9a' },
+  { id: 'UTKARSH_SFB', name: 'Utkarsh Small Finance Bank Card', category: 'Small Finance Bank', minDuePct: 0.05, logoColor: '#d32f2f' },
+  { id: 'EQUITAS_SFB', name: 'Equitas Small Finance Bank Card', category: 'Small Finance Bank', minDuePct: 0.05, logoColor: '#1565c0' },
+  { id: 'JANA_SFB', name: 'Jana Small Finance Bank Card', category: 'Small Finance Bank', minDuePct: 0.05, logoColor: '#ef6c00' },
+  { id: 'SURYODAY_SFB', name: 'Suryoday Small Finance Bank Card', category: 'Small Finance Bank', minDuePct: 0.05, logoColor: '#2e7d32' },
+  { id: 'UJJIVAN_SFB', name: 'Ujjivan Small Finance Bank Card', category: 'Small Finance Bank', minDuePct: 0.05, logoColor: '#00838f' },
+  { id: 'SHIVALIK_SFB', name: 'Shivalik Small Finance Bank Card', category: 'Small Finance Bank', minDuePct: 0.05, logoColor: '#3949ab' },
+
+  // 4. Foreign & Multinational Banks
+  { id: 'AMEX', name: 'American Express (Amex India)', category: 'Foreign & Global', minDuePct: 0.05, logoColor: '#006fcf' },
+  { id: 'STAN_CHART', name: 'Standard Chartered Bank Card', category: 'Foreign & Global', minDuePct: 0.05, logoColor: '#008543' },
+  { id: 'HSBC', name: 'HSBC India Credit Card', category: 'Foreign & Global', minDuePct: 0.05, logoColor: '#db0011' },
+  { id: 'CITI', name: 'Citibank India (Axis Citi Card)', category: 'Foreign & Global', minDuePct: 0.05, logoColor: '#003b70' },
+  { id: 'DEUTSCHE', name: 'Deutsche Bank India Credit Card', category: 'Foreign & Global', minDuePct: 0.05, logoColor: '#0018a8' },
+  { id: 'DBS', name: 'DBS Bank India (Digibank Card)', category: 'Foreign & Global', minDuePct: 0.05, logoColor: '#e01a22' },
+  { id: 'SBM', name: 'SBM Bank India Credit Card', category: 'Foreign & Global', minDuePct: 0.05, logoColor: '#003366' },
+  { id: 'BARCLAYS', name: 'Barclays India Credit Card', category: 'Foreign & Global', minDuePct: 0.05, logoColor: '#00aeef' },
+
+  // 5. Co-Branded & FinTech Cards
+  { id: 'ONECARD', name: 'OneCard (Federal / BOB / CSB / SBM)', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#111827' },
+  { id: 'UNI', name: 'Uni Card (Pay 1/3rd / NX Wave)', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#1e293b' },
+  { id: 'SCAPIA', name: 'Scapia Federal Bank Travel Card', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#ea580c' },
+  { id: 'FI_MONEY', name: 'Fi-Federal Bank Credit Card', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#059669' },
+  { id: 'JUPITER', name: 'Jupiter CSB Edge Credit Card', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#7c3aed' },
+  { id: 'SLICE', name: 'Slice Card (Spark / UPI Card)', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#8b5cf6' },
+  { id: 'AMAZON_ICICI', name: 'Amazon Pay ICICI Bank Card', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#ff9900' },
+  { id: 'FLIPKART_AXIS', name: 'Flipkart Axis Bank Card', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#2874f0' },
+  { id: 'TATA_NEU_HDFC', name: 'Tata Neu HDFC Bank Card', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#7928ca' },
+  { id: 'AIRTEL_AXIS', name: 'Airtel Axis Bank Credit Card', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#e11900' },
+  { id: 'SWIGGY_HDFC', name: 'Swiggy HDFC Bank Credit Card', category: 'Co-Branded & FinTech', minDuePct: 0.05, logoColor: '#fc8019' },
 ];
 
 export const MOBILE_OPERATORS = [

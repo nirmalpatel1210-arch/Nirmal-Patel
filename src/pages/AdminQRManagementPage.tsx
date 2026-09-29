@@ -46,7 +46,7 @@ export const AdminQRManagementPage: React.FC<AdminQRManagementProps> = ({ onNavi
   const [bankName, setBankName] = useState('HDFC Bank');
   const [accountNumber, setAccountNumber] = useState('');
   const [ifsc, setIfsc] = useState('');
-  const [accountHolder, setAccountHolder] = useState('SHREE SHYAM ENTERPRISE');
+  const [accountHolder, setAccountHolder] = useState('MANNAT ENTERPRISE PVT LTD');
   const [dailyLimit, setDailyLimit] = useState('1000000');
   const [notes, setNotes] = useState('');
   const [qrImageUrl, setQrImageUrl] = useState<string>('');
@@ -77,7 +77,7 @@ export const AdminQRManagementPage: React.FC<AdminQRManagementProps> = ({ onNavi
     setBankName('HDFC Bank');
     setAccountNumber('');
     setIfsc('');
-    setAccountHolder('SHREE SHYAM ENTERPRISE');
+    setAccountHolder('MANNAT ENTERPRISE PVT LTD');
     setDailyLimit('1000000');
     setNotes('');
     setQrImageUrl('');
@@ -149,7 +149,7 @@ export const AdminQRManagementPage: React.FC<AdminQRManagementProps> = ({ onNavi
         bankName,
         accountNumber: accountNumber || undefined,
         ifsc: ifsc || undefined,
-        accountHolder: accountHolder || 'SHREE SHYAM ENTERPRISE',
+        accountHolder: accountHolder || 'MANNAT ENTERPRISE PVT LTD',
         dailyLimit: parseFloat(dailyLimit) || 1000000,
         notes: notes || undefined,
         qrImageUrl: qrImageUrl || undefined,
@@ -163,7 +163,7 @@ export const AdminQRManagementPage: React.FC<AdminQRManagementProps> = ({ onNavi
         bankName,
         accountNumber: accountNumber || undefined,
         ifsc: ifsc || undefined,
-        accountHolder: accountHolder || 'SHREE SHYAM ENTERPRISE',
+        accountHolder: accountHolder || 'MANNAT ENTERPRISE PVT LTD',
         dailyLimit: parseFloat(dailyLimit) || 1000000,
         notes: notes || undefined,
         qrImageUrl: qrImageUrl || undefined,

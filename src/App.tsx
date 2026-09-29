@@ -3,6 +3,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { PrintableReceiptModal } from './components/PrintableReceiptModal';
+import { ShieldAlert, ArrowRight } from 'lucide-react';
 
 // Pages
 import { LoginPage } from './pages/LoginPage';
@@ -11,13 +12,9 @@ import { AgentDashboardPage } from './pages/AgentDashboardPage';
 import { QRLoadWalletPage } from './pages/QRLoadWalletPage';
 import { CCHistoryPage } from './pages/CCHistoryPage';
 import { AgentCCHistoryPage } from './pages/AgentCCHistoryPage';
-import { LiveBillHistoryPage } from './pages/LiveBillHistoryPage';
 import { WalletLedgerPage } from './pages/WalletLedgerPage';
-import { BBPSPage } from './pages/BBPSPage';
 import { CreditCardPayPage } from './pages/CreditCardPayPage';
 import { MoneyTransferPage } from './pages/MoneyTransferPage';
-import { MobileRechargePage } from './pages/MobileRechargePage';
-import { GenericUtilityPage } from './pages/GenericUtilityPage';
 import { SettlementPage } from './pages/SettlementPage';
 import { TransactionsPage } from './pages/TransactionsPage';
 import { ReportsPage } from './pages/ReportsPage';
@@ -77,40 +74,59 @@ const MainAppContent: React.FC = () => {
 
   // Render content according to currentPath
   const renderPage = () => {
+    // Strict Panel Segregation: Agent cannot view Admin routes
+    if (currentPath.startsWith('/admin') && role !== 'admin') {
+      return (
+        <div className="p-8 max-w-xl mx-auto my-12 bg-white rounded-2xl border border-rose-200 shadow-md text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <h2 className="text-lg font-extrabold text-slate-900">Restricted HQ Admin Panel</h2>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Your current session is authenticated as an <strong>Agent Terminal Operator</strong>.
+            This administrative control panel is restricted to authorized Super Administrators only.
+          </p>
+          <div className="pt-2">
+            <button
+              onClick={() => handleNavigate('/dashboard')}
+              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm inline-flex items-center gap-2 cursor-pointer"
+            >
+              <span>Return to Agent Terminal Dashboard</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     switch (currentPath) {
       case '/dashboard':
-        return <AgentDashboardPage onNavigate={handleNavigate} />;
+        return role === 'admin' ? (
+          <AdminDashboardPage onNavigate={handleNavigate} />
+        ) : (
+          <AgentDashboardPage onNavigate={handleNavigate} />
+        );
       case '/wallet/qr-load':
         return <QRLoadWalletPage onNavigate={handleNavigate} />;
       case '/agent/credit-card-history':
       case '/services/cc-history':
         return <AgentCCHistoryPage onNavigate={handleNavigate} />;
-      case '/services/live-bill-history':
-        return <LiveBillHistoryPage onNavigate={handleNavigate} />;
       case '/wallet':
         return <WalletLedgerPage onNavigate={handleNavigate} />;
       case '/wallet/settlement':
         return <SettlementPage onNavigate={handleNavigate} />;
-      case '/services/bbps':
-        return <BBPSPage onNavigate={handleNavigate} />;
       case '/services/credit-card':
+      case '/services/bbps':
+      case '/services/electricity':
+      case '/services/gas':
+      case '/services/water':
+      case '/services/dth':
+      case '/services/mobile-recharge':
+      case '/services/fastag':
+      case '/services/insurance':
         return <CreditCardPayPage onNavigate={handleNavigate} />;
       case '/services/money-transfer':
         return <MoneyTransferPage onNavigate={handleNavigate} />;
-      case '/services/mobile-recharge':
-        return <MobileRechargePage onNavigate={handleNavigate} />;
-      case '/services/dth':
-        return <GenericUtilityPage serviceType="DTH" onNavigate={handleNavigate} />;
-      case '/services/electricity':
-        return <GenericUtilityPage serviceType="ELECTRICITY" onNavigate={handleNavigate} />;
-      case '/services/gas':
-        return <GenericUtilityPage serviceType="GAS" onNavigate={handleNavigate} />;
-      case '/services/water':
-        return <GenericUtilityPage serviceType="WATER" onNavigate={handleNavigate} />;
-      case '/services/insurance':
-        return <GenericUtilityPage serviceType="INSURANCE" onNavigate={handleNavigate} />;
-      case '/services/fastag':
-        return <GenericUtilityPage serviceType="FASTAG" onNavigate={handleNavigate} />;
       case '/transactions':
         return <TransactionsPage onNavigate={handleNavigate} />;
       case '/reports/commission':
@@ -158,7 +174,11 @@ const MainAppContent: React.FC = () => {
         return <AdminAuditLogsPage onNavigate={handleNavigate} />;
 
       default:
-        return <AgentDashboardPage onNavigate={handleNavigate} />;
+        return role === 'admin' ? (
+          <AdminDashboardPage onNavigate={handleNavigate} />
+        ) : (
+          <AgentDashboardPage onNavigate={handleNavigate} />
+        );
     }
   };
 

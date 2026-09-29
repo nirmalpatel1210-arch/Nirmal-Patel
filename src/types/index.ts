@@ -207,7 +207,7 @@ export interface QRCodeConfig {
   bankName: string; // e.g. "HDFC Bank"
   accountNumber?: string;
   ifsc?: string;
-  accountHolder: string; // "SHREE SHYAM ENTERPRISE"
+  accountHolder: string; // "MANNAT ENTERPRISE PVT LTD"
   isLive: boolean; // True if currently active/live for agent wallet load
   qrImageUrl?: string; // Uploaded custom QR code image (Base64 data URL or remote URL)
   dailyLimit?: number;

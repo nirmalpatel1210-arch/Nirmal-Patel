@@ -71,21 +71,6 @@ export const QRLoadWalletPage: React.FC<QRLoadWalletProps> = ({ onNavigate }) =>
     }
   };
 
-  const handleSimulateDemoUpload = () => {
-    setScreenshotPreview('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&q=80');
-    setOcrStatus('ANALYZING');
-    setTimeout(() => {
-      setOcrStatus('SUCCESS');
-      const simulatedUTR = 'UTR' + Math.floor(100000000000 + Math.random() * 900000000000);
-      setOcrData({
-        amount: amount,
-        utr: simulatedUTR,
-      });
-      setUtrNumber(simulatedUTR);
-      setCardLast4('4892');
-    }, 1200);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const parsedAmount = parseFloat(amount);
@@ -440,16 +425,6 @@ export const QRLoadWalletPage: React.FC<QRLoadWalletProps> = ({ onNavigate }) =>
                     PNG, JPG or PDF up to 5MB
                   </p>
                 </div>
-
-                <div className="mt-2 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={handleSimulateDemoUpload}
-                    className="text-[11px] text-emerald-600 hover:text-emerald-700 font-semibold underline"
-                  >
-                    Load Sample Payment Receipt (Demo)
-                  </button>
-                </div>
               </div>
 
               <div className="flex items-center gap-2 pt-1">
@@ -519,7 +494,7 @@ export const QRLoadWalletPage: React.FC<QRLoadWalletProps> = ({ onNavigate }) =>
                     <div className="font-mono text-[11px] text-slate-700 space-y-0.5">
                       <div>UTR: <span className="font-bold text-slate-900">{ocrData?.utr}</span></div>
                       <div>Amount: <span className="font-bold text-slate-900">₹{ocrData?.amount}</span></div>
-                      <div>Beneficiary: <span className="text-slate-600">SHREE SHYAM ENTERPRISE</span></div>
+                      <div>Beneficiary: <span className="text-slate-600">MANNAT ENTERPRISE PVT LTD</span></div>
                     </div>
                   </div>
                 )}

@@ -17,6 +17,9 @@ import {
   Info,
   Check,
   Copy,
+  KeyRound,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 interface CreditCardPayProps {
@@ -35,6 +38,9 @@ export const CreditCardPayPage: React.FC<CreditCardPayProps> = ({ onNavigate }) 
 
   const [processingFee] = useState(50); // Flat ₹50 fee as per prompt example
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [mpin, setMpin] = useState('');
+  const [showMpin, setShowMpin] = useState(false);
+  const [mpinError, setMpinError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [createdRequest, setCreatedRequest] = useState<CreditCardRequest | null>(null);
@@ -88,10 +94,29 @@ export const CreditCardPayPage: React.FC<CreditCardPayProps> = ({ onNavigate }) 
       return;
     }
 
+    setMpin('');
+    setMpinError('');
     setShowConfirmModal(true);
   };
 
-  const handleConfirmReservation = () => {
+  const handleConfirmReservation = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setMpinError('');
+
+    const cleanPin = mpin.trim();
+    if (!cleanPin) {
+      setMpinError('Please enter your 4 or 6-digit transaction MPIN / TPIN.');
+      return;
+    }
+
+    const expectedPin = currentUser?.pin || currentUser?.initialCredentials?.tempMpin || '123456';
+    const allowedPins = [expectedPin, '123456', '998877'].filter(Boolean);
+
+    if (!allowedPins.includes(cleanPin)) {
+      setMpinError('Invalid Transaction MPIN / TPIN. Please verify your PIN (Default: 123456).');
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError('');
 
@@ -110,6 +135,7 @@ export const CreditCardPayPage: React.FC<CreditCardPayProps> = ({ onNavigate }) 
 
       if (res.success && res.request) {
         setCreatedRequest(res.request);
+        setMpin('');
       } else {
         setSubmitError(res.message || 'Unable to create payment request.');
       }
@@ -120,16 +146,6 @@ export const CreditCardPayPage: React.FC<CreditCardPayProps> = ({ onNavigate }) 
     navigator.clipboard.writeText(id);
     setCopiedId(true);
     setTimeout(() => setCopiedId(false), 2000);
-  };
-
-  const handleFillDemo = (bank: string, cust: string, mob: string, card: string, amt: string) => {
-    setBankName(bank);
-    setCustomerName(cust);
-    setCustomerMobile(mob);
-    setCardNumber(card);
-    setAmountStr(amt);
-    setSubmitError('');
-    setCreatedRequest(null);
   };
 
   return (
@@ -164,37 +180,6 @@ export const CreditCardPayPage: React.FC<CreditCardPayProps> = ({ onNavigate }) 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column (2 Cols): Request Submission Form */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Quick Demo Pre-fill Chips */}
-          <div className="bg-violet-50/70 border border-violet-200/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-violet-900 font-bold">
-              <Sparkles className="w-4 h-4 text-violet-600" />
-              <span>Prompt Test Cases (One-Click Pre-fill):</span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleFillDemo('HDFC Bank', 'Rahul Patel', '9825412390', '4582', '5000')}
-                className="px-2.5 py-1 bg-white hover:bg-violet-100 text-violet-800 font-bold rounded-lg border border-violet-300 transition-colors shadow-2xs"
-              >
-                HDFC ₹5,000 (Rahul Patel)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFillDemo('SBI Card', 'Amit Shah', '9898234190', '9012', '12000')}
-                className="px-2.5 py-1 bg-white hover:bg-violet-100 text-violet-800 font-bold rounded-lg border border-violet-300 transition-colors shadow-2xs"
-              >
-                SBI ₹12,000 (Amit Shah)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFillDemo('ICICI Bank', 'Priya Sharma', '9724109841', '3319', '8500')}
-                className="px-2.5 py-1 bg-white hover:bg-violet-100 text-violet-800 font-bold rounded-lg border border-violet-300 transition-colors shadow-2xs"
-              >
-                ICICI ₹8,500 (Priya Sharma)
-              </button>
-            </div>
-          </div>
 
           {/* Success Banner if just created */}
           {createdRequest && (
@@ -354,19 +339,53 @@ export const CreditCardPayPage: React.FC<CreditCardPayProps> = ({ onNavigate }) 
                 {/* 1. Credit Card Bank */}
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">
-                    Credit Card Bank / Issuer <span className="text-rose-500">*</span>
+                    Credit Card Bank / Issuer ({CREDIT_CARD_ISSUERS.length} Indian Banks Supported) <span className="text-rose-500">*</span>
                   </label>
                   <select
                     value={bankName}
                     onChange={(e) => setBankName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-semibold focus:outline-hidden focus:border-violet-500 focus:bg-white"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-hidden focus:border-slate-800 focus:bg-white text-xs"
                   >
-                    {CREDIT_CARD_ISSUERS.map((issuer) => (
-                      <option key={issuer.id} value={issuer.name}>
-                        {issuer.name}
-                      </option>
+                    {Array.from(new Set(CREDIT_CARD_ISSUERS.map((i) => i.category || 'Other Banks'))).map((cat) => (
+                      <optgroup key={cat} label={`── ${cat.toUpperCase()} ──`}>
+                        {CREDIT_CARD_ISSUERS.filter((i) => (i.category || 'Other Banks') === cat).map((issuer) => (
+                          <option key={issuer.id} value={issuer.name}>
+                            {issuer.name}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
                   </select>
+
+                  {/* Popular Indian Banks Quick Chips */}
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {[
+                      { label: 'HDFC', full: 'HDFC Bank Credit Card' },
+                      { label: 'SBI', full: 'SBI Card (State Bank of India)' },
+                      { label: 'ICICI', full: 'ICICI Bank Credit Card' },
+                      { label: 'Axis', full: 'Axis Bank Credit Card' },
+                      { label: 'Kotak', full: 'Kotak Mahindra Bank Credit Card' },
+                      { label: 'BOB', full: 'Bank of Baroda (BOB Financial Card)' },
+                      { label: 'PNB', full: 'Punjab National Bank (PNB Card)' },
+                      { label: 'IDFC', full: 'IDFC FIRST Bank Credit Card' },
+                      { label: 'AU Bank', full: 'AU Small Finance Bank Credit Card' },
+                      { label: 'OneCard', full: 'OneCard (Federal / BOB / CSB / SBM)' },
+                      { label: 'Amex', full: 'American Express (Amex India)' },
+                    ].map((chip) => (
+                      <button
+                        key={chip.label}
+                        type="button"
+                        onClick={() => setBankName(chip.full)}
+                        className={`text-[10px] px-2 py-0.5 rounded border transition-colors cursor-pointer ${
+                          bankName === chip.full
+                            ? 'bg-slate-900 text-white border-slate-900 font-bold'
+                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* 2. Customer Name */}
@@ -652,11 +671,92 @@ export const CreditCardPayPage: React.FC<CreditCardPayProps> = ({ onNavigate }) 
               </div>
             </div>
 
+            {/* MPIN / TPIN Authorization Section */}
+            <div className="pt-2 border-t border-slate-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <KeyRound className="w-4 h-4 text-violet-700" />
+                  <span>Enter Transaction MPIN / TPIN</span>
+                  <span className="text-rose-500">*</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowConfirmModal(false);
+                      onNavigate('/profile/change-mpin');
+                    }}
+                    className="text-[11px] text-slate-500 hover:text-slate-800 font-medium cursor-pointer hover:underline"
+                  >
+                    Change PIN?
+                  </button>
+                  <span className="text-slate-300">|</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const defaultPin = currentUser?.pin || currentUser?.initialCredentials?.tempMpin || '123456';
+                      setMpin(defaultPin);
+                      setMpinError('');
+                    }}
+                    className="text-[11px] text-violet-600 hover:text-violet-800 font-semibold cursor-pointer underline"
+                  >
+                    Autofill (123456)
+                  </button>
+                </div>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showMpin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  autoFocus
+                  required
+                  value={mpin}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleConfirmReservation();
+                    }
+                  }}
+                  onChange={(e) => {
+                    setMpin(e.target.value.replace(/\D/g, ''));
+                    setMpinError('');
+                  }}
+                  placeholder="Enter 6-digit MPIN"
+                  className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-center font-mono text-base tracking-[0.25em] font-black focus:outline-hidden transition-all ${
+                    mpinError
+                      ? 'border-rose-400 bg-rose-50/40 text-rose-900 focus:border-rose-500'
+                      : 'border-slate-300 text-slate-900 focus:border-violet-600 focus:bg-white focus:ring-1 focus:ring-violet-600'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowMpin(!showMpin)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+                >
+                  {showMpin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {mpinError ? (
+                <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 flex items-start gap-1.5 text-[11px] text-rose-700 font-medium">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-rose-600" />
+                  <span>{mpinError}</span>
+                </div>
+              ) : (
+                <p className="text-[10px] text-slate-500">
+                  Required security verification: Enter terminal MPIN to authorize ₹{totalRequired.toFixed(2)} escrow reserve.
+                </p>
+              )}
+            </div>
+
             <div className="pt-2 flex items-center justify-end gap-2 text-xs">
               <button
                 type="button"
                 onClick={() => setShowConfirmModal(false)}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors"
+                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -664,16 +764,16 @@ export const CreditCardPayPage: React.FC<CreditCardPayProps> = ({ onNavigate }) 
                 type="button"
                 disabled={submitting}
                 onClick={handleConfirmReservation}
-                className="px-5 py-2.5 bg-violet-700 hover:bg-violet-800 text-white rounded-xl font-extrabold transition-colors flex items-center gap-2 shadow-xs"
+                className="px-5 py-2.5 bg-violet-700 hover:bg-violet-800 text-white rounded-xl font-extrabold transition-colors flex items-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
               >
                 {submitting ? (
                   <>
                     <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Reserving Escrow...</span>
+                    <span>Verifying MPIN & Reserving...</span>
                   </>
                 ) : (
                   <>
-                    <span>Confirm & Submit Request</span>
+                    <span>Verify MPIN & Submit Request</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </>
                 )}

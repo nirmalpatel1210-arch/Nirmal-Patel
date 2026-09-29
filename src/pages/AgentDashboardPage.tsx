@@ -10,12 +10,6 @@ import {
   Filter,
   Search,
   ArrowUpRight,
-  Zap,
-  Smartphone,
-  Flame,
-  Droplets,
-  Tv,
-  Car,
   ShieldCheck,
   Send,
   Eye,
@@ -60,7 +54,7 @@ export const AgentDashboardPage: React.FC<AgentDashboardProps> = ({ onNavigate }
     (r) => r.agentId === currentUser?.agentId || r.agentId === currentUser?.id
   );
 
-  // Requirement #12: Dashboard Counters
+  // Dashboard Counters
   const pendingCCCount = myCCRequests.filter(
     (r) => r.status === 'REQUESTED' || r.status === 'PROCESSING' || r.status === 'PAYMENT DONE'
   ).length;
@@ -77,9 +71,9 @@ export const AgentDashboardPage: React.FC<AgentDashboardProps> = ({ onNavigate }
   const ccTxns = transactions.filter((t) => t.service === 'CREDIT_CARD');
   const ccVolume = ccTxns.reduce((sum, t) => sum + (t.status === 'SUCCESS' ? t.billAmount : 0), 0);
 
-  // Live Bill / BBPS metrics
-  const liveTxns = transactions.filter((t) => t.service !== 'CREDIT_CARD');
-  const liveVolume = liveTxns.reduce((sum, t) => sum + (t.status === 'SUCCESS' ? t.billAmount : 0), 0);
+  // DMT & Transfers metrics
+  const dmtTxns = transactions.filter((t) => t.service === 'MONEY_TRANSFER');
+  const dmtVolume = dmtTxns.reduce((sum, t) => sum + (t.status === 'SUCCESS' ? t.billAmount : 0), 0);
 
   // Pending count
   const pendingTxns = transactions.filter((t) => t.status === 'PENDING');
@@ -102,17 +96,67 @@ export const AgentDashboardPage: React.FC<AgentDashboardProps> = ({ onNavigate }
     return matchesSearch && matchesStatus;
   });
 
-  const quickServices = [
-    { name: 'BBPS Central Hub', path: '/services/bbps', icon: Receipt, color: 'bg-emerald-500', desc: 'All Biller Categories' },
-    { name: 'Credit Card Bill', path: '/services/credit-card', icon: CreditCard, color: 'bg-indigo-600', desc: 'Instant Clearance' },
-    { name: 'Money Transfer', path: '/services/money-transfer', icon: Send, color: 'bg-amber-500', desc: 'DMT & Instant IMPS' },
-    { name: 'Mobile Recharge', path: '/services/mobile-recharge', icon: Smartphone, color: 'bg-sky-500', desc: 'Prepaid 4G/5G' },
-    { name: 'DTH Recharge', path: '/services/dth', icon: Tv, color: 'bg-rose-500', desc: 'Tata Play, Airtel, Dish' },
-    { name: 'Electricity Bill', path: '/services/electricity', icon: Zap, color: 'bg-yellow-500', desc: 'Torrent, UGVCL, BESCOM' },
-    { name: 'Piped Gas', path: '/services/gas', icon: Flame, color: 'bg-orange-500', desc: 'Adani, Gujarat Gas' },
-    { name: 'Water Municipal', path: '/services/water', icon: Droplets, color: 'bg-blue-600', desc: 'AMC, SMC, Delhi Jal' },
-    { name: 'Insurance Premium', path: '/services/insurance', icon: ShieldCheck, color: 'bg-teal-600', desc: 'LIC, HDFC Life, SBI' },
-    { name: 'FASTag Recharge', path: '/services/fastag', icon: Car, color: 'bg-purple-600', desc: 'ICICI, Paytm, Kotak' },
+  const primaryActions = [
+    {
+      name: 'Credit Card Bill Payment',
+      path: '/services/credit-card',
+      icon: CreditCard,
+      color: 'bg-violet-600',
+      badge: '50+ Indian Banks',
+      badgeColor: 'bg-violet-100 text-violet-800 border-violet-200',
+      desc: 'Instant clearance for HDFC, SBI, ICICI, Axis, Kotak, Amex & all credit card issuers',
+      actionText: 'Pay Card Bill →',
+    },
+    {
+      name: 'Credit Card Requests History',
+      path: '/agent/credit-card-history',
+      icon: History,
+      color: 'bg-indigo-600',
+      badge: `${myCCRequests.length} Total Requests`,
+      badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+      desc: 'Track live admin execution, payment confirmation UTRs, and print vouchers',
+      actionText: 'Track Status →',
+    },
+    {
+      name: 'QR Load Wallet',
+      path: '/wallet/qr-load',
+      icon: QrCode,
+      color: 'bg-cyan-600',
+      badge: 'Instant UPI',
+      badgeColor: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+      desc: 'Scan active live QR with any UPI app and submit UTR for instant balance top-up',
+      actionText: 'Top Up Balance →',
+    },
+    {
+      name: 'Bank Payout / DMT Transfer',
+      path: '/services/money-transfer',
+      icon: Send,
+      color: 'bg-amber-600',
+      badge: 'Instant IMPS',
+      badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+      desc: 'Direct beneficiary bank payout with immediate IMPS/NEFT confirmation',
+      actionText: 'Transfer Funds →',
+    },
+    {
+      name: 'Account Statement & Passbook',
+      path: '/wallet',
+      icon: FileText,
+      color: 'bg-emerald-600',
+      badge: 'Ledger Audit',
+      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      desc: 'Complete running transaction ledger with debits, credits, fees and balances',
+      actionText: 'View Passbook →',
+    },
+    {
+      name: 'Settlement / Withdrawal Request',
+      path: '/wallet/settlement',
+      icon: ArrowUpRight,
+      color: 'bg-rose-600',
+      badge: 'Direct to Bank',
+      badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
+      desc: 'Withdraw your terminal balances directly to your verified commercial bank account',
+      actionText: 'Request Payout →',
+    },
   ];
 
   return (
@@ -255,8 +299,8 @@ export const AgentDashboardPage: React.FC<AgentDashboardProps> = ({ onNavigate }
         </div>
       </div>
 
-      {/* 5 Primary Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* 4 Primary Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 1. Total Wallet Balance */}
         <div className="bg-[#107050] text-white rounded-2xl p-4 shadow-sm flex flex-col justify-between min-h-[110px]">
           <div className="flex items-center justify-between">
@@ -272,12 +316,12 @@ export const AgentDashboardPage: React.FC<AgentDashboardProps> = ({ onNavigate }
               ₹{availableWallet.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
             </div>
             <div className="text-[10px] text-emerald-100/80 mt-0.5">
-              {reservedWallet > 0 ? `(Hold: ₹${reservedWallet.toLocaleString('en-IN')} reserved)` : 'Main Usable Balance'}
+              {reservedWallet > 0 ? `(Hold: ₹${reservedWallet.toLocaleString('en-IN')} reserved)` : 'Main Usable Liquidity'}
             </div>
           </div>
         </div>
 
-        {/* 2. PENDING CC REQUESTS (Requirement #12) */}
+        {/* 2. PENDING CC REQUESTS */}
         <div className="bg-gradient-to-br from-violet-900 to-indigo-950 text-white rounded-2xl p-4 shadow-sm flex flex-col justify-between min-h-[110px] border border-violet-800">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-violet-200">
@@ -302,7 +346,7 @@ export const AgentDashboardPage: React.FC<AgentDashboardProps> = ({ onNavigate }
           </div>
         </div>
 
-        {/* 3. CC Bill Payment */}
+        {/* 3. CC Bill Payment Volume */}
         <div className="bg-[#1f58b5] text-white rounded-2xl p-4 shadow-sm flex flex-col justify-between min-h-[110px]">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-blue-100/90">
@@ -317,61 +361,41 @@ export const AgentDashboardPage: React.FC<AgentDashboardProps> = ({ onNavigate }
               ₹{ccVolume.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
             </div>
             <div className="text-[10px] text-blue-100/80 mt-0.5">
-              {myCCRequests.length} Total Requests
+              {myCCRequests.length} Total Requests Processed
             </div>
           </div>
         </div>
 
-        {/* 4. Live Bill Payment */}
-        <div className="bg-[#593993] text-white rounded-2xl p-4 shadow-sm flex flex-col justify-between min-h-[110px]">
+        {/* 4. Active Liquidity & DMT Queue */}
+        <div className="bg-[#1e293b] text-white rounded-2xl p-4 shadow-sm flex flex-col justify-between min-h-[110px] border border-slate-700">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-100/90">
-              LIVE BILL PAYMENT
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300">
+              BANK PAYOUTS (DMT)
             </span>
-            <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
-              <History className="w-4 h-4 text-white" />
+            <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center">
+              <Send className="w-4 h-4 text-amber-400" />
             </div>
           </div>
           <div>
             <div className="text-2xl font-black font-mono tracking-tight tabular-nums">
-              ₹{liveVolume.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              ₹{dmtVolume.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
             </div>
-            <div className="text-[10px] text-purple-100/80 mt-0.5">
-              {liveTxns.length} Utility Orders
-            </div>
-          </div>
-        </div>
-
-        {/* 5. Overall Queue */}
-        <div className="bg-[#995c1c] text-white rounded-2xl p-4 shadow-sm flex flex-col justify-between min-h-[110px]">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-100/90">
-              OVERALL QUEUE
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
-              <Clock className="w-4 h-4 text-white" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-black font-mono tracking-tight tabular-nums">
-              {pendingCount + pendingCCCount} Txns
-            </div>
-            <div className="text-[10px] text-amber-100/80 mt-0.5">
-              ₹{(pendingVolume + (myCCRequests.filter(r => r.status === 'REQUESTED').reduce((s, r) => s + r.amount, 0))).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            <div className="text-[10px] text-slate-400 mt-0.5">
+              {dmtTxns.length} Completed Transfers
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quick Services Grid */}
+      {/* Primary Payment Services Grid */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-base font-extrabold text-slate-900 tracking-tight">
-              Quick Payment Services
+              Terminal Operations
             </h2>
             <p className="text-xs text-slate-500">
-              Instant bill payment, direct transfer and utility recharge engines
+              Credit card bill payments, QR balance loading, bank payouts and wallet settlements
             </p>
           </div>
           <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
@@ -379,25 +403,36 @@ export const AgentDashboardPage: React.FC<AgentDashboardProps> = ({ onNavigate }
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
-          {quickServices.map((srv) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+          {primaryActions.map((srv) => {
             const Icon = srv.icon;
             return (
               <button
                 key={srv.name}
                 onClick={() => onNavigate(srv.path)}
-                className="p-3.5 rounded-xl border border-slate-200 hover:border-emerald-500 bg-slate-50/50 hover:bg-emerald-50/30 text-left transition-all group flex flex-col justify-between"
+                className="p-4 rounded-xl border border-slate-200 hover:border-emerald-500 bg-slate-50/50 hover:bg-emerald-50/20 text-left transition-all group flex flex-col justify-between cursor-pointer"
               >
-                <div className={`w-9 h-9 rounded-lg ${srv.color} text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform`}>
-                  <Icon className="w-5 h-5" />
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className={`w-9 h-9 rounded-lg ${srv.color} text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${srv.badgeColor}`}>
+                      {srv.badge}
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <div className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors leading-tight">
+                      {srv.name}
+                    </div>
+                    <div className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                      {srv.desc}
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-3">
-                  <div className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition-colors leading-tight">
-                    {srv.name}
-                  </div>
-                  <div className="text-[10px] text-slate-400 mt-0.5 truncate">
-                    {srv.desc}
-                  </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-center justify-between text-xs font-semibold text-emerald-600 group-hover:text-emerald-700">
+                  <span>{srv.actionText}</span>
+                  <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </button>
             );

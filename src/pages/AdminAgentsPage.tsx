@@ -17,6 +17,10 @@ import {
   Shield,
   CreditCard,
   UserCheck,
+  HelpCircle,
+  Copy,
+  Check,
+  ExternalLink,
 } from 'lucide-react';
 
 interface AdminAgentsPageProps {
@@ -41,6 +45,8 @@ export const AdminAgentsPage: React.FC<AdminAgentsPageProps> = ({ onNavigate }) 
   const [selectedAgentForCredentials, setSelectedAgentForCredentials] = useState<User | null>(null);
   const [selectedAgentForCommission, setSelectedAgentForCommission] = useState<User | null>(null);
   const [showZeroResetModal, setShowZeroResetModal] = useState(false);
+  const [showAccessHelpModal, setShowAccessHelpModal] = useState(false);
+  const [copiedTemplate, setCopiedTemplate] = useState(false);
   const [toastMsg, setToastMsg] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
 
   // New Agent Form State
@@ -224,19 +230,19 @@ export const AdminAgentsPage: React.FC<AdminAgentsPageProps> = ({ onNavigate }) 
     setBusinessName('');
     setAddress('');
     setStartingBalance('0');
-    setCustomAgentId(`SSE-AG-${88221 + agents.length}`);
-    setCustomPassword(`Shyam@2026#${Math.floor(1000 + Math.random() * 9000)}`);
+    setCustomAgentId(`MEPL-AG-${88221 + agents.length}`);
+    setCustomPassword(`Mannat@2026#${Math.floor(1000 + Math.random() * 9000)}`);
     showToast(`Agent ${name} created successfully with ID ${assignedId}`);
   };
 
   const handleCopyWhatsApp = (agent: { agentId: string; name: string; mobile: string; password?: string; pin?: string }) => {
-    const pass = agent.password || 'agent@shyam2026';
+    const pass = agent.password || 'agent@mannat2026';
     const pin = agent.pin || '123456';
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const text = `*श्री श्याम एंटरप्राइज - एजेंट लॉगिन क्रेडेंशियल्स*\n\nनमस्ते ${agent.name},\nआपका एजेंट टर्मिनल एक्टिवेट हो गया है। लॉगिन विवरण निम्नलिखित हैं:\n\n🔗 पोर्टल लिंक: ${origin}/login\n👤 एजेंट आईडी (ID): ${agent.agentId}\n📱 रजिस्टर्ड मोबाइल: ${agent.mobile}\n🔑 पासवर्ड (Password): ${pass}\n🔢 ट्रांजैक्शन पिन (PIN): ${pin}\n\n⚠️ कृपया पहली बार लॉगिन करने के बाद अपना पासवर्ड सुरक्षित रखें।\n\n- SHREE SHYAM ENTERPRISE`;
+    const text = `*मन्नत एंटरप्राइज प्रा. लि. - एजेंट लॉगिन क्रेडेंशियल्स*\n\nनमस्ते ${agent.name},\nआपका एजेंट टर्मिनल एक्टिवेट हो गया है। लॉगिन विवरण निम्नलिखित हैं:\n\n🔗 पोर्टल लिंक: ${origin}/login\n👤 एजेंट आईडी (ID): ${agent.agentId}\n📱 रजिस्टर्ड मोबाइल: ${agent.mobile}\n🔑 पासवर्ड (Password): ${pass}\n🔢 ट्रांजैक्शन पिन (PIN): ${pin}\n\n⚠️ कृपया पहली बार लॉगिन करने के बाद अपना पासवर्ड सुरक्षित रखें।\n\n- MANNAT ENTERPRISE PVT LTD`;
 
     navigator.clipboard.writeText(text);
-    showToast('Credentials copied to clipboard! Ready to paste on WhatsApp / SMS.');
+    showToast('Credentials copied to clipboard! Ready to paste on WhatsApp.');
   };
 
   const handleExecuteZeroReset = () => {
@@ -304,6 +310,15 @@ export const AdminAgentsPage: React.FC<AdminAgentsPageProps> = ({ onNavigate }) 
             className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
           >
             <span>Onboarding Wizard</span>
+          </button>
+
+          <button
+            onClick={() => setShowAccessHelpModal(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 rounded-xl text-xs font-extrabold transition-all shadow-xs cursor-pointer"
+            title="How do agents get access? (एजेंट को एक्सेस कैसे मिलेगी?)"
+          >
+            <HelpCircle className="w-4 h-4 text-indigo-600" />
+            <span>एजेंट को एक्सेस कैसे मिलेगी?</span>
           </button>
         </div>
       </div>
@@ -1342,6 +1357,153 @@ export const AdminAgentsPage: React.FC<AdminAgentsPageProps> = ({ onNavigate }) 
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Access Help Modal (एजेंट को एक्सेस कैसे मिलेगी?) */}
+      {showAccessHelpModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 space-y-5 my-8">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900">
+                    एजेंट को एक्सेस कैसे मिलेगी? (Agent Access Flow & Panel Segregation)
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Step-by-step onboarding & login guidance for Mannat Enterprise agents
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAccessHelpModal(false)}
+                className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 4 Steps Container */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                1. एडमिन और एजेंट की 4-स्टेप एक्सेस प्रक्रिया:
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                  <div className="flex items-center gap-2 font-bold text-slate-900">
+                    <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] shrink-0 font-mono">1</span>
+                    <span>एडमिन एजेंट को रजिस्टर करता है</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 pl-7 leading-relaxed">
+                    एडमिन पैनल में <strong className="text-emerald-700">+ नया एजेंट बनाएं</strong> या <strong className="text-slate-800">Onboarding Wizard</strong> पर क्लिक करके एजेंट का नाम, मोबाइल नंबर, दुकान और कमीशन प्लान दर्ज करें।
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                  <div className="flex items-center gap-2 font-bold text-slate-900">
+                    <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[11px] shrink-0 font-mono">2</span>
+                    <span>क्रेडेंशियल्स जनरेट होते हैं</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 pl-7 leading-relaxed">
+                    सिस्टम ऑटोमैटिक यूनिक <strong className="text-indigo-700 font-mono">Agent ID (जैसे SSE-AG-88220)</strong>, सुरक्षित पासवर्ड और ट्रांजैक्शन पिन (MPIN) जनरेट करता है।
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                  <div className="flex items-center gap-2 font-bold text-slate-900">
+                    <span className="w-5 h-5 rounded-full bg-cyan-600 text-white flex items-center justify-center text-[11px] shrink-0 font-mono">3</span>
+                    <span>WhatsApp / SMS पर शेयर करें</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 pl-7 leading-relaxed">
+                    एजेंट टेबल में हरे रंग के <strong className="text-emerald-700">WhatsApp आइकन</strong> या <strong className="text-slate-800">पासवर्ड</strong> बटन पर क्लिक करके तैयार मैसेज कॉपी करें और एजेंट को भेजें।
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                  <div className="flex items-center gap-2 font-bold text-slate-900">
+                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center text-[11px] shrink-0 font-mono">4</span>
+                    <span>एजेंट टर्मिनल में लॉगिन</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 pl-7 leading-relaxed">
+                    एजेंट <strong className="text-slate-800">/login</strong> पर जाता है, <strong>Agent Terminal</strong> टैब चुनता है, अपनी ID और पासवर्ड डालकर तुरंत बिल पेमेंट शुरू करता है।
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Panel Segregation Info */}
+            <div className="p-4 bg-indigo-50/70 border border-indigo-200 rounded-xl space-y-2 text-xs">
+              <div className="flex items-center gap-2 font-bold text-indigo-950">
+                <ShieldCheck className="w-4 h-4 text-indigo-700" />
+                <span>एडमिन पैनल और एजेंट पैनल अलग-अलग (Separated Dedicated Portals)</span>
+              </div>
+              <p className="text-[11px] text-indigo-900 leading-relaxed">
+                • <strong>Agent Terminal Panel:</strong> एजेंट केवल अपने रिटेल सर्विसेज (BBPS बिल पेमेंट, क्रेडिट कार्ड पे, मोबाइल रिचार्ज, मनी ट्रांसफर, QR वॉलेट लोड और सपोर्ट) का उपयोग कर सकता है। वह एडमिन सेटिंग्स कभी नहीं देख सकता।
+              </p>
+              <p className="text-[11px] text-indigo-900 leading-relaxed">
+                • <strong>HQ Admin Panel:</strong> केवल ऑथराइज्ड एडमिन (ccshyam945@gmail.com) सभी एजेंट्स, कमीशन स्लैब (₹10 डिफ़ॉल्ट मार्कअप), क्रेडिट कार्ड अप्रूवल और बैंक सेटलमेंट नियंत्रित करता है।
+              </p>
+            </div>
+
+            {/* Ready WhatsApp Template */}
+            <div className="p-4 bg-slate-900 text-slate-100 rounded-xl space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                  एजेंट को भेजने के लिए WhatsApp मैसेज टेम्पलेट:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                    const sampleText = `*मन्नत एंटरप्राइज प्रा. लि. - एजेंट लॉगिन क्रेडेंशियल्स*\n\nनमस्ते,\nआपका एजेंट टर्मिनल एक्टिवेट कर दिया गया है।\n\n🔗 पोर्टल लिंक: ${origin}/login\n👤 एजेंट आईडी: MEPL-AG-XXXXX (या आपका मोबाइल नंबर)\n🔑 पासवर्ड: YourPassword\n🔢 ट्रांजैक्शन पिन: 123456\n\n- MANNAT ENTERPRISE PVT LTD`;
+                    navigator.clipboard.writeText(sampleText);
+                    setCopiedTemplate(true);
+                    setTimeout(() => setCopiedTemplate(false), 2500);
+                  }}
+                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  {copiedTemplate ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-white" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy Template</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <pre className="font-mono text-[11px] text-slate-300 bg-slate-950 p-3 rounded-lg overflow-x-auto whitespace-pre-wrap leading-relaxed border border-slate-800">
+{`*मन्नत एंटरप्राइज प्रा. लि. - एजेंट लॉगिन क्रेडेंशियल्स*
+
+नमस्ते [एजेंट का नाम],
+आपका एजेंट टर्मिनल एक्टिवेट कर दिया गया है। लॉगिन विवरण:
+
+🔗 पोर्टल लिंक: https://.../login (Agent Terminal चुनें)
+👤 एजेंट आईडी: MEPL-AG-XXXXX (या रजिस्टर्ड मोबाइल)
+🔑 पासवर्ड: [एडमिन द्वारा दिया गया पासवर्ड]
+🔢 ट्रांजैक्शन पिन (MPIN): 123456
+
+- MANNAT ENTERPRISE PVT LTD`}
+              </pre>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowAccessHelpModal(false)}
+                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              >
+                समझ गया (Close Guide)
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -45,12 +45,10 @@ export const AdminDashboardPage: React.FC<AdminDashboardProps> = ({ onNavigate }
 
   // Service breakdown
   const serviceBreakdown = [
-    { service: 'Credit Card Bill', count: transactions.filter(t => t.service === 'CREDIT_CARD').length, color: 'bg-violet-600' },
-    { service: 'Electricity (BBPS)', count: transactions.filter(t => t.service === 'ELECTRICITY').length, color: 'bg-yellow-500' },
-    { service: 'Money Transfer (DMT)', count: transactions.filter(t => t.service === 'MONEY_TRANSFER').length, color: 'bg-amber-500' },
-    { service: 'Gas & Water', count: transactions.filter(t => t.service === 'GAS' || t.service === 'WATER').length, color: 'bg-orange-500' },
-    { service: 'Mobile & DTH Recharge', count: transactions.filter(t => t.service === 'MOBILE_RECHARGE' || t.service === 'DTH').length, color: 'bg-sky-500' },
-    { service: 'FASTag & Insurance', count: transactions.filter(t => t.service === 'FASTAG' || t.service === 'INSURANCE').length, color: 'bg-emerald-600' },
+    { service: 'Credit Card Bill Payment', count: ccRequests.length || transactions.filter(t => t.service === 'CREDIT_CARD').length, color: 'bg-violet-600' },
+    { service: 'Bank Payout / DMT Transfer', count: transactions.filter(t => t.service === 'MONEY_TRANSFER').length, color: 'bg-amber-500' },
+    { service: 'QR Wallet Load Requests', count: fundRequests.length, color: 'bg-cyan-600' },
+    { service: 'Settlements to Bank', count: settlements.length, color: 'bg-rose-500' },
   ];
 
   return (
@@ -60,7 +58,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardProps> = ({ onNavigate }
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>SHREE SHYAM ENTERPRISE / CENTRAL GOVERNANCE</span>
+            <span>MANNAT ENTERPRISE PVT LTD / CENTRAL GOVERNANCE</span>
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1">
             Super Administrator Dashboard

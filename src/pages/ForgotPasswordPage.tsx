@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { COMPANY_INFO } from '../data/mockData';
+import { useApp } from '../context/AppContext';
 import { ArrowLeft, KeyRound, CheckCircle2, ShieldCheck, Mail, Lock } from 'lucide-react';
 
 interface ForgotPasswordProps {
@@ -7,6 +8,7 @@ interface ForgotPasswordProps {
 }
 
 export const ForgotPasswordPage: React.FC<ForgotPasswordProps> = ({ onNavigate }) => {
+  const { updateAgentCredentials } = useApp();
   const [step, setStep] = useState<'REQUEST' | 'OTP' | 'SUCCESS'>('REQUEST');
   const [identifier, setIdentifier] = useState('9825412390');
   const [otp, setOtp] = useState('482190');
@@ -40,18 +42,19 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordProps> = ({ onNavigate }
     }
 
     setLoading(true);
+    updateAgentCredentials(identifier, { password: newPassword });
     setTimeout(() => {
       setLoading(false);
       setStep('SUCCESS');
-    }, 800);
+    }, 700);
   };
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-600 text-white font-extrabold text-xl shadow-lg mb-3">
-            SSE
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 text-white font-extrabold text-sm shadow-md mb-3">
+            MEPL
           </div>
           <h1 className="text-xl font-extrabold tracking-tight text-white uppercase">
             {COMPANY_INFO.name}
@@ -86,8 +89,8 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordProps> = ({ onNavigate }
                 />
               </div>
 
-              <div className="p-3 bg-emerald-950/40 border border-emerald-800/40 rounded-lg text-[11px] text-emerald-300">
-                Demo helper: OTP will automatically simulate verification for this demo session.
+              <div className="p-3 bg-slate-900/60 border border-slate-700/80 rounded-lg text-[11px] text-slate-300">
+                A 6-digit verification security OTP will be dispatched to your registered mobile number for identity verification.
               </div>
 
               <button
@@ -178,7 +181,7 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordProps> = ({ onNavigate }
               <div>
                 <h2 className="text-lg font-bold text-white">Password Reset Successfully</h2>
                 <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  Your credentials for Shree Shyam Enterprise terminal have been securely updated. You can now login with your new password.
+                  Your credentials for Mannat Enterprise terminal have been securely updated. You can now login with your new password.
                 </p>
               </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { CreditCardRequest, CCRequestStatus } from '../types';
+import { exportToExcel } from '../utils/excelExport';
 import {
   CreditCard,
   CheckCircle2,
@@ -106,46 +107,28 @@ export const AgentCCHistoryPage: React.FC<AgentCCHistoryProps> = ({ onNavigate }
     setTimeout(() => setCopiedId(false), 2000);
   };
 
-  const handleExportCSV = () => {
-    const headers = [
-      'Request ID',
-      'Transaction ID',
-      'Bank',
-      'Customer Name',
-      'Mobile',
-      'Card Ending',
-      'Amount',
-      'Processing Fee',
-      'Wallet Debit',
-      'Status',
-      'Payment Ref / UTR',
-      'Date & Time',
-    ];
-
-    const rows = filteredList.map((r) => [
-      r.id,
-      r.transactionId,
-      r.bankName,
-      r.customerName,
-      r.customerMobile,
-      r.cardLast4,
-      r.amount,
-      r.processingFee,
-      r.totalReserved,
-      r.status,
-      r.paymentRefNumber || 'N/A',
-      r.createdAt,
-    ]);
-
-    const csvContent =
-      'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `SSE_CC_Requests_${currentUser?.agentId || 'agent'}_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExportExcel = () => {
+    exportToExcel<CreditCardRequest>(
+      `MEPL_CreditCard_History_${currentUser?.agentId || 'agent'}`,
+      [
+        { header: 'Request ID', key: 'id' },
+        { header: 'Transaction ID', key: 'transactionId' },
+        { header: 'Created Date & Time', key: 'createdAt' },
+        { header: 'Bank Name', key: 'bankName' },
+        { header: 'Credit Card No', key: 'cardLast4', format: (val) => `XXXX-XXXX-XXXX-${val}` },
+        { header: 'Customer Name', key: 'customerName' },
+        { header: 'Customer Mobile', key: 'customerMobile' },
+        { header: 'Card Bill Amount (₹)', key: 'amount', format: (val) => Number(val).toFixed(2) },
+        { header: 'Convenience Fee (₹)', key: 'processingFee', format: (val) => Number(val || 50).toFixed(2) },
+        { header: 'Total Escrow Reserved (₹)', key: 'totalReserved', format: (val) => Number(val).toFixed(2) },
+        { header: 'Approval Status', key: 'status' },
+        { header: 'Admin Settlement UTR', key: 'paymentRefNumber', format: (val) => val || 'Pending Settlement' },
+        { header: 'Settlement Account', key: 'settledFromAccount', format: (val) => val || 'MEPL Master Treasury' },
+        { header: 'Admin Remarks', key: 'remarks', format: (val) => val || '-' },
+      ],
+      filteredList,
+      'Credit Card Bill Payment Requests'
+    );
   };
 
   // Helper for Status Badges
@@ -418,11 +401,11 @@ export const AgentCCHistoryPage: React.FC<AgentCCHistoryProps> = ({ onNavigate }
 
           <div className="flex items-center gap-2">
             <button
-              onClick={handleExportCSV}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold transition-colors"
+              onClick={handleExportExcel}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Export CSV</span>
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Export to Excel</span>
             </button>
           </div>
         </div>

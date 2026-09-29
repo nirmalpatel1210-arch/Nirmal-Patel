@@ -24,6 +24,14 @@ import {
   RefreshCw,
   Clock,
   BadgeAlert,
+  Percent,
+  Coins,
+  Zap,
+  Calculator,
+  Sliders,
+  Tag,
+  HelpCircle,
+  Info,
 } from 'lucide-react';
 
 interface WizardProps {
@@ -67,15 +75,26 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
   const [ifsc, setIfsc] = useState('HDFC0001024');
   const [accountType, setAccountType] = useState('Current Account');
 
-  // STEP 4: Commission Plan & Opening Float
+  // STEP 4: Commission Configuration & Platform Fees
   const [selectedPlanId, setSelectedPlanId] = useState<string>('plan_silver');
+  const [feeType, setFeeType] = useState<'FLAT' | 'PERCENT'>('FLAT');
+  const [platformFeeValue, setPlatformFeeValue] = useState<string>('10'); // Default 10 INR platform fee per transaction for new agents
+  const [adminMarkupPercent, setAdminMarkupPercent] = useState<string>('0.25'); // Percentage-based markup
+  const [agentCommType, setAgentCommType] = useState<'FLAT' | 'PERCENT'>('FLAT');
+  const [agentCommValue, setAgentCommValue] = useState<string>('3.50');
+  const [dmtAdminMarkupPercent, setDmtAdminMarkupPercent] = useState<string>('0.45');
+  const [dmtAgentCommPercent, setDmtAgentCommPercent] = useState<string>('0.20');
+  const [ccProcessingFee, setCcProcessingFee] = useState<string>('50');
+  const [ccAgentComm, setCcAgentComm] = useState<string>('15');
+  const [rechargeCommPercent, setRechargeCommPercent] = useState<string>('2.0');
+  const [simulatedTxnAmount, setSimulatedTxnAmount] = useState<string>('1000');
   const [openingFloat, setOpeningFloat] = useState<string>('2000');
   const [dailyLimit, setDailyLimit] = useState<string>('500000');
 
   // STEP 5: Credentials Generated
-  const nextAgentId = `SSE-AG-${88220 + agents.length}`;
+  const nextAgentId = `MEPL-AG-${88220 + agents.length}`;
   const [generatedAgentId] = useState<string>(nextAgentId);
-  const [tempPassword, setTempPassword] = useState<string>('Shyam@2026#9841');
+  const [tempPassword, setTempPassword] = useState<string>('Mannat@2026#9841');
   const [tempMpin, setTempMpin] = useState<string>('849120');
 
   // Onboarding Completed State
@@ -85,10 +104,40 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
 
   const selectedPlan = COMMISSION_PACKAGES.find((p) => p.id === selectedPlanId) || COMMISSION_PACKAGES[1];
 
+  const handleSelectPackage = (pkgId: string) => {
+    setSelectedPlanId(pkgId);
+    if (pkgId === 'plan_gold') {
+      setAgentCommValue('4.50');
+      setDmtAgentCommPercent('0.25');
+      setCcAgentComm('20');
+      setRechargeCommPercent('2.50');
+    } else if (pkgId === 'plan_platinum') {
+      setAgentCommValue('6.00');
+      setDmtAgentCommPercent('0.30');
+      setCcAgentComm('25');
+      setRechargeCommPercent('3.00');
+    } else if (pkgId === 'plan_diamond') {
+      setAgentCommValue('8.00');
+      setDmtAgentCommPercent('0.35');
+      setCcAgentComm('30');
+      setRechargeCommPercent('3.50');
+    } else {
+      setAgentCommValue('3.50');
+      setDmtAgentCommPercent('0.20');
+      setCcAgentComm('15');
+      setRechargeCommPercent('2.00');
+    }
+  };
+
+  const handleResetDefault10Fee = () => {
+    setFeeType('FLAT');
+    setPlatformFeeValue('10');
+  };
+
   // Helper to re-generate random credentials
   const handleRegenerateCredentials = () => {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    setTempPassword(`Shyam@2026#${randomSuffix}`);
+    setTempPassword(`Mannat@2026#${randomSuffix}`);
     setTempMpin(Math.floor(100000 + Math.random() * 900000).toString());
   };
 
@@ -196,6 +245,11 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
         ? 'VERIFIED'
         : 'PENDING';
 
+    const finalMarkupValue =
+      feeType === 'FLAT'
+        ? (parseFloat(platformFeeValue) || 10)
+        : (parseFloat(adminMarkupPercent) || 0.25);
+
     const newAgent = createAgent({
       name,
       email,
@@ -207,9 +261,24 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
       state,
       pincode,
       agentId: generatedAgentId,
+      password: tempPassword,
+      pin: tempMpin,
       walletBalance: floatAmount,
       dailyLimit: parseInt(dailyLimit, 10) || 500000,
       commissionPlan: selectedPlan.name,
+      commissionSettings: {
+        enabled: true,
+        planName: selectedPlan.name,
+        adminBillMarkupType: feeType,
+        adminBillMarkupValue: finalMarkupValue,
+        agentBillCommissionType: agentCommType,
+        agentBillCommissionValue: parseFloat(agentCommValue) || 3.50,
+        ccProcessingFee: parseFloat(ccProcessingFee) || 50.00,
+        ccAgentCommission: parseFloat(ccAgentComm) || 15.00,
+        dmtAdminFeePercent: parseFloat(dmtAdminMarkupPercent) || 0.45,
+        dmtAgentCommissionPercent: parseFloat(dmtAgentCommPercent) || 0.20,
+        rechargeAgentCommissionPercent: parseFloat(rechargeCommPercent) || 2.00,
+      },
       kycStatus: overallKyc,
       kycDocuments: kycDocs,
       panNumber: panNumber.toUpperCase(),
@@ -242,7 +311,12 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
   };
 
   const handleCopyCredentials = () => {
-    const credText = `SHREE SHYAM ENTERPRISE - Agent Terminal Credentials\nAgent ID: ${generatedAgentId}\nName: ${name}\nLogin ID: ${email} or ${mobile}\nPassword: ${tempPassword}\nMPIN: ${tempMpin}\nCommission Plan: ${selectedPlan.name}\nTerminal URL: ${window.location.origin}/login`;
+    const feeDisplay =
+      feeType === 'FLAT'
+        ? `₹${parseFloat(platformFeeValue || '10').toFixed(2)} Flat (Default 10 INR Platform Fee)`
+        : `${parseFloat(adminMarkupPercent || '0.25').toFixed(2)}% Percentage Markup`;
+
+    const credText = `MANNAT ENTERPRISE PVT LTD - Agent Terminal Credentials\nAgent ID: ${generatedAgentId}\nName: ${name}\nLogin ID: ${email} or ${mobile}\nPassword: ${tempPassword}\nMPIN: ${tempMpin}\nCommission Plan: ${selectedPlan.name}\nPlatform Fee per Txn: ${feeDisplay}\nAgent Bill Commission: ${agentCommType === 'FLAT' ? `₹${parseFloat(agentCommValue || '3.5').toFixed(2)} Flat` : `${agentCommValue}%`}\nTerminal URL: ${window.location.origin}/login`;
     navigator.clipboard.writeText(credText);
     setCopiedCredentials(true);
     setTimeout(() => setCopiedCredentials(false), 2500);
@@ -252,7 +326,7 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
     { num: 1, title: 'Profile & Store', icon: Building2 },
     { num: 2, title: 'KYC Tracking', icon: ShieldCheck },
     { num: 3, title: 'Bank Settlement', icon: CreditCard },
-    { num: 4, title: 'Commission Plan', icon: Sparkles },
+    { num: 4, title: 'Commission & Fees', icon: Sparkles },
     { num: 5, title: 'Activation', icon: KeyRound },
   ];
 
@@ -516,7 +590,7 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
               className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 shrink-0"
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Simulate Automated Gateway Check (Demo)</span>
+              <span>Automated Gateway Verification (NSDL & UIDAI)</span>
             </button>
           </div>
 
@@ -914,23 +988,27 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
               onClick={goToNextStep}
               className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2 shadow-xs"
             >
-              <span>Proceed to Commission Plan</span>
+              <span>Proceed to Commission Configuration</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
 
-      {/* STEP 4: Commission Plan Assignment & Wallet Float */}
+      {/* STEP 4: Commission Configuration & Platform Fees */}
       {!isCompleted && currentStep === 4 && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
           <div className="pb-3 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900">
-                Step 4: Assign Commission Package & Opening Liquidity
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>STEP 4 OF 5 · MARGINS & COMMISSIONS</span>
+              </div>
+              <h2 className="text-base font-extrabold text-slate-900 tracking-tight mt-0.5">
+                Commission Configuration & Platform Fee Settings
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Select the commission sharing structure and set initial float credit.
+                Define the platform fee per transaction (default 10 INR), set percentage-based markups, and customize agent commission splits.
               </p>
             </div>
             <span className="text-xs bg-slate-100 text-slate-700 font-bold px-2.5 py-1 rounded-md">
@@ -938,57 +1016,546 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
             </span>
           </div>
 
-          {/* Commission Packages Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {COMMISSION_PACKAGES.map((pkg) => {
-              const isSelected = selectedPlanId === pkg.id;
-              return (
-                <div
-                  key={pkg.id}
-                  onClick={() => setSelectedPlanId(pkg.id)}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                    isSelected
-                      ? 'border-emerald-600 bg-emerald-50/50 shadow-xs'
-                      : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-extrabold text-sm text-slate-900">{pkg.name}</span>
-                    <span
-                      className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide ${
-                        pkg.recommended ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'
-                      }`}
-                    >
-                      {pkg.badge}
+          {/* =========================================================================
+              FEATURED CARD: DEFAULT 10 INR PLATFORM FEE & PERCENTAGE MARKUP POLICY
+             ========================================================================= */}
+          <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 border border-indigo-800/50 shadow-md space-y-5 relative overflow-hidden">
+            <div className="absolute right-0 top-0 translate-x-8 -translate-y-8 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-bold uppercase tracking-wider">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Platform Markup Policy for New Agent</span>
+                </div>
+                <h3 className="text-lg font-black text-white">
+                  Platform Fee & Markup Mode
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-xl">
+                  By default, new agents are onboarded with a <strong className="text-emerald-400">Default 10 INR Platform Fee</strong> per transaction on utility bills. You can also configure a custom <strong className="text-indigo-300">percentage-based markup</strong>.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleResetDefault10Fee}
+                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition-colors shadow-xs"
+              >
+                <Zap className="w-3.5 h-3.5 fill-current" />
+                <span>Reset to Default ₹10 INR Fee</span>
+              </button>
+            </div>
+
+            {/* Mode Switcher Tabs */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setFeeType('FLAT');
+                  if (platformFeeValue === '0' || !platformFeeValue) setPlatformFeeValue('10');
+                }}
+                className={`p-4 rounded-xl border text-left transition-all ${
+                  feeType === 'FLAT'
+                    ? 'bg-emerald-500/15 border-emerald-400 text-white shadow-xs'
+                    : 'bg-slate-800/60 border-slate-700/80 text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold ${
+                      feeType === 'FLAT' ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-slate-300'
+                    }`}>
+                      ₹
+                    </div>
+                    <span className="font-extrabold text-sm text-white">Default 10 INR Flat Fee</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+                    Recommended
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  Fixed ₹10.00 INR platform fee charged per utility bill transaction debited from agent wallet (Bill + ₹10.00).
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setFeeType('PERCENT');
+                  if (adminMarkupPercent === '0' || !adminMarkupPercent) setAdminMarkupPercent('0.25');
+                }}
+                className={`p-4 rounded-xl border text-left transition-all ${
+                  feeType === 'PERCENT'
+                    ? 'bg-indigo-500/20 border-indigo-400 text-white shadow-xs'
+                    : 'bg-slate-800/60 border-slate-700/80 text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold ${
+                      feeType === 'PERCENT' ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-300'
+                    }`}>
+                      %
+                    </div>
+                    <span className="font-extrabold text-sm text-white">Percentage-Based Markup</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-indigo-400/20 text-indigo-300 border border-indigo-400/30">
+                    Dynamic
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  Calculates platform fee dynamically as a percentage markup on the transaction amount (e.g. 0.25% or 0.50%).
+                </p>
+              </button>
+            </div>
+
+            {/* Input & Presets based on active mode */}
+            {feeType === 'FLAT' ? (
+              <div className="bg-slate-800/70 p-4 rounded-xl border border-slate-700/80 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-200 mb-0.5">
+                      Platform Fee Per Transaction (INR) <span className="text-emerald-400 font-bold">*</span>
+                    </label>
+                    <span className="text-[11px] text-slate-400">
+                      Standard default is 10 INR per transaction for all newly onboarded agents.
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-500 mb-3">{pkg.description}</p>
-
-                  <div className="grid grid-cols-2 gap-2 text-xs bg-white/80 p-2.5 rounded-lg border border-slate-100 font-mono">
-                    <div>
-                      <span className="text-[10px] text-slate-400 block font-sans">BBPS Bills</span>
-                      <span className="font-bold text-emerald-700">{pkg.rates.bbps}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 block font-sans">Credit Card</span>
-                      <span className="font-bold text-violet-700">{pkg.rates.creditCard}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 block font-sans">DMT Transfer</span>
-                      <span className="font-bold text-amber-700">{pkg.rates.dmt}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 block font-sans">Mobile Recharge</span>
-                      <span className="font-bold text-sky-700">{pkg.rates.mobileRecharge}</span>
-                    </div>
+                  <div className="relative w-full sm:w-48">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400 text-sm">
+                      ₹
+                    </span>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      required
+                      value={platformFeeValue}
+                      onChange={(e) => setPlatformFeeValue(e.target.value)}
+                      className="w-full pl-8 pr-3.5 py-2 bg-slate-900 border border-slate-600 rounded-lg text-sm font-mono font-extrabold text-emerald-400 focus:outline-hidden focus:border-emerald-500"
+                    />
                   </div>
                 </div>
-              );
-            })}
+
+                <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-slate-700/50">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => setPlatformFeeValue('10')}
+                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                      platformFeeValue === '10'
+                        ? 'bg-emerald-500 text-slate-950 font-black'
+                        : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                    }`}
+                  >
+                    ⭐ Default ₹10.00 Flat
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPlatformFeeValue('5')}
+                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                      platformFeeValue === '5'
+                        ? 'bg-emerald-500 text-slate-950 font-black'
+                        : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                    }`}
+                  >
+                    ₹5.00 Flat
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPlatformFeeValue('15')}
+                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                      platformFeeValue === '15'
+                        ? 'bg-emerald-500 text-slate-950 font-black'
+                        : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                    }`}
+                  >
+                    ₹15.00 Flat
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPlatformFeeValue('20')}
+                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                      platformFeeValue === '20'
+                        ? 'bg-emerald-500 text-slate-950 font-black'
+                        : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                    }`}
+                  >
+                    ₹20.00 Flat
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-800/70 p-4 rounded-xl border border-slate-700/80 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-200 mb-0.5">
+                      Percentage-Based Markup Rate (%) <span className="text-indigo-400 font-bold">*</span>
+                    </label>
+                    <span className="text-[11px] text-slate-400">
+                      Calculated on bill amount and debited from agent wallet per transaction.
+                    </span>
+                  </div>
+
+                  <div className="relative w-full sm:w-48">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400 text-sm">
+                      %
+                    </span>
+                    <input
+                      type="number"
+                      step="0.05"
+                      min="0"
+                      required
+                      value={adminMarkupPercent}
+                      onChange={(e) => setAdminMarkupPercent(e.target.value)}
+                      className="w-full pl-8 pr-3.5 py-2 bg-slate-900 border border-slate-600 rounded-lg text-sm font-mono font-extrabold text-indigo-300 focus:outline-hidden focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-slate-700/50">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => setAdminMarkupPercent('0.15')}
+                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                      adminMarkupPercent === '0.15'
+                        ? 'bg-indigo-500 text-white font-black'
+                        : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                    }`}
+                  >
+                    0.15% (Low Markup)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAdminMarkupPercent('0.25')}
+                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                      adminMarkupPercent === '0.25'
+                        ? 'bg-indigo-500 text-white font-black'
+                        : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                    }`}
+                  >
+                    0.25% (Standard)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAdminMarkupPercent('0.50')}
+                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                      adminMarkupPercent === '0.50'
+                        ? 'bg-indigo-500 text-white font-black'
+                        : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                    }`}
+                  >
+                    0.50% (High Margin)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAdminMarkupPercent('0.75')}
+                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                      adminMarkupPercent === '0.75'
+                        ? 'bg-indigo-500 text-white font-black'
+                        : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                    }`}
+                  >
+                    0.75%
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAdminMarkupPercent('1.00')}
+                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                      adminMarkupPercent === '1.00'
+                        ? 'bg-indigo-500 text-white font-black'
+                        : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                    }`}
+                  >
+                    1.00%
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Opening Float & Daily Limit */}
+          {/* =========================================================================
+              LIVE TRANSACTION MARGIN & FEE SIMULATOR
+             ========================================================================= */}
+          {(() => {
+            const simAmt = parseFloat(simulatedTxnAmount) || 1000;
+            const feeAmt =
+              feeType === 'FLAT'
+                ? (parseFloat(platformFeeValue) || 10)
+                : (simAmt * (parseFloat(adminMarkupPercent) || 0.25)) / 100;
+            const totalDebited = simAmt + feeAmt;
+            const agentEarnings =
+              agentCommType === 'FLAT'
+                ? (parseFloat(agentCommValue) || 3.5)
+                : (simAmt * (parseFloat(agentCommValue) || 0.25)) / 100;
+
+            return (
+              <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-emerald-100 text-emerald-800 rounded-lg">
+                      <Calculator className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                        Live Transaction Fee & HQ Margin Simulator
+                      </h4>
+                      <p className="text-[11px] text-slate-500">
+                        Test how the configured markup fee behaves on live utility bill payments.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Simulator Presets */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Test Bill:</span>
+                    {['500', '1000', '2500', '5000', '10000'].map((amt) => (
+                      <button
+                        key={amt}
+                        type="button"
+                        onClick={() => setSimulatedTxnAmount(amt)}
+                        className={`px-2 py-0.5 text-xs font-mono font-bold rounded transition-colors ${
+                          simulatedTxnAmount === amt
+                            ? 'bg-slate-900 text-white'
+                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        ₹{parseInt(amt, 10).toLocaleString('en-IN')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs font-mono">
+                  <div className="p-3 bg-white rounded-xl border border-slate-200">
+                    <span className="text-[10px] text-slate-400 font-sans block">Customer Bill</span>
+                    <span className="text-sm font-bold text-slate-800">₹{simAmt.toLocaleString('en-IN')}.00</span>
+                  </div>
+
+                  <div className="p-3 bg-indigo-50/70 rounded-xl border border-indigo-200">
+                    <span className="text-[10px] text-indigo-700 font-sans font-bold block">
+                      Platform Fee ({feeType === 'FLAT' ? 'Default 10 INR' : `${adminMarkupPercent}%`})
+                    </span>
+                    <span className="text-sm font-black text-indigo-900">+ ₹{feeAmt.toFixed(2)}</span>
+                  </div>
+
+                  <div className="p-3 bg-rose-50/70 rounded-xl border border-rose-200">
+                    <span className="text-[10px] text-rose-700 font-sans font-bold block">Agent Wallet Debited</span>
+                    <span className="text-sm font-black text-rose-900">₹{totalDebited.toFixed(2)}</span>
+                  </div>
+
+                  <div className="p-3 bg-emerald-50/70 rounded-xl border border-emerald-200">
+                    <span className="text-[10px] text-emerald-700 font-sans font-bold block">Agent Earns Comm</span>
+                    <span className="text-sm font-black text-emerald-800">₹{agentEarnings.toFixed(2)}</span>
+                  </div>
+
+                  <div className="p-3 bg-slate-900 text-white rounded-xl border border-slate-800 col-span-2 sm:col-span-1">
+                    <span className="text-[10px] text-emerald-400 font-sans font-bold block">HQ Net Retention</span>
+                    <span className="text-sm font-black text-white">₹{feeAmt.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* =========================================================================
+              BASE COMMISSION PACKAGES TEMPLATE
+             ========================================================================= */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                  Base Commission Package Slab
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  Select standard tier to pre-populate service commission rates for this agent.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {COMMISSION_PACKAGES.map((pkg) => {
+                const isSelected = selectedPlanId === pkg.id;
+                return (
+                  <div
+                    key={pkg.id}
+                    onClick={() => handleSelectPackage(pkg.id)}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                      isSelected
+                        ? 'border-emerald-600 bg-emerald-50/50 shadow-xs ring-1 ring-emerald-500'
+                        : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-extrabold text-sm text-slate-900">{pkg.name}</span>
+                      <span
+                        className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide ${
+                          pkg.recommended ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'
+                        }`}
+                      >
+                        {pkg.badge}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-500 mb-3">{pkg.description}</p>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs bg-white/80 p-2.5 rounded-lg border border-slate-100 font-mono">
+                      <div>
+                        <span className="text-[10px] text-slate-400 block font-sans">BBPS Bills</span>
+                        <span className="font-bold text-emerald-700">{pkg.rates.bbps}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 block font-sans">Credit Card</span>
+                        <span className="font-bold text-violet-700">{pkg.rates.creditCard}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 block font-sans">DMT Transfer</span>
+                        <span className="font-bold text-amber-700">{pkg.rates.dmt}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 block font-sans">Mobile Recharge</span>
+                        <span className="font-bold text-sky-700">{pkg.rates.mobileRecharge}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* =========================================================================
+              GRANULAR SERVICE COMMISSIONS & PAYOUTS
+             ========================================================================= */}
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+            <div className="flex items-center gap-2">
+              <Sliders className="w-4 h-4 text-emerald-600" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                Agent Payout & Service Commission Customization
+              </h4>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+              {/* 1. BBPS Agent Commission */}
+              <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-2">
+                <span className="font-bold text-slate-800 block text-[11px]">1. BBPS & Utility Bills</span>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-1">Commission Type</label>
+                  <div className="grid grid-cols-2 gap-1 bg-slate-100 p-0.5 rounded-md text-[10px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setAgentCommType('FLAT')}
+                      className={`py-1 rounded text-center ${
+                        agentCommType === 'FLAT' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+                      }`}
+                    >
+                      Flat (₹)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAgentCommType('PERCENT')}
+                      className={`py-1 rounded text-center ${
+                        agentCommType === 'PERCENT' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+                      }`}
+                    >
+                      Percent (%)
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-1">
+                    Agent Commission Payout ({agentCommType === 'FLAT' ? '₹' : '%'})
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={agentCommValue}
+                    onChange={(e) => setAgentCommValue(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded font-mono font-bold text-slate-900 focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              {/* 2. DMT */}
+              <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-2">
+                <span className="font-bold text-slate-800 block text-[11px]">2. Domestic Money Transfer (DMT)</span>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-1">Admin Fee Markup (%)</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    min="0"
+                    value={dmtAdminMarkupPercent}
+                    onChange={(e) => setDmtAdminMarkupPercent(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded font-mono font-bold text-slate-900 focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-1">Agent Commission (%)</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    min="0"
+                    value={dmtAgentCommPercent}
+                    onChange={(e) => setDmtAgentCommPercent(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded font-mono font-bold text-emerald-700 focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              {/* 3. Credit Card */}
+              <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-2">
+                <span className="font-bold text-slate-800 block text-[11px]">3. Credit Card Bill Payout</span>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-1">Processing Fee Fixed (₹)</label>
+                  <input
+                    type="number"
+                    step="5"
+                    min="0"
+                    value={ccProcessingFee}
+                    onChange={(e) => setCcProcessingFee(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded font-mono font-bold text-slate-900 focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-1">Agent Commission (₹)</label>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={ccAgentComm}
+                    onChange={(e) => setCcAgentComm(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded font-mono font-bold text-emerald-700 focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              {/* 4. Mobile Recharge */}
+              <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-2">
+                <span className="font-bold text-slate-800 block text-[11px]">4. Prepaid & DTH Recharge</span>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-1">Agent Commission (%)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={rechargeCommPercent}
+                    onChange={(e) => setRechargeCommPercent(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded font-mono font-bold text-emerald-700 focus:outline-hidden"
+                  />
+                </div>
+                <div className="pt-2 text-[10px] text-slate-400">
+                  Instant credit to agent wallet upon recharge confirmation.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* =========================================================================
+              OPENING FLOAT & DAILY LIMIT
+             ========================================================================= */}
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
@@ -1112,16 +1679,26 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 text-xs">
-              <div className="text-slate-400 text-[11px]">
-                Commission Slab: <span className="text-emerald-400 font-bold">{selectedPlan.name}</span>
-                {' · '}Initial Balance: <span className="text-white font-bold font-mono">₹{parseFloat(openingFloat || '0').toFixed(2)}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-2 gap-2 text-xs">
+              <div className="text-slate-300 text-[11px] space-y-0.5">
+                <div>
+                  Commission Slab: <span className="text-emerald-400 font-bold">{selectedPlan.name}</span>
+                  {' · '}Platform Fee: <span className="text-amber-300 font-bold">
+                    {feeType === 'FLAT' ? `₹${parseFloat(platformFeeValue || '10').toFixed(2)} Flat (Default 10 INR)` : `${adminMarkupPercent}% Markup`}
+                  </span>
+                </div>
+                <div>
+                  Agent Bill Payout: <span className="text-indigo-300 font-bold">
+                    {agentCommType === 'FLAT' ? `₹${parseFloat(agentCommValue || '3.5').toFixed(2)} Flat` : `${agentCommValue}%`}
+                  </span>
+                  {' · '}Initial Float: <span className="text-white font-bold font-mono">₹{parseFloat(openingFloat || '0').toFixed(2)}</span>
+                </div>
               </div>
 
               <button
                 type="button"
                 onClick={handleCopyCredentials}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-colors shrink-0"
               >
                 {copiedCredentials ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedCredentials ? 'COPIED TO CLIPBOARD' : 'COPY CREDENTIALS'}</span>
@@ -1163,7 +1740,7 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
               Agent Onboarding Completed!
             </h2>
             <p className="text-xs text-slate-500">
-              Terminal <span className="font-mono font-bold text-slate-800">{createdAgentRecord.agentId}</span> is officially active on Shree Shyam Enterprise network.
+              Terminal <span className="font-mono font-bold text-slate-800">{createdAgentRecord.agentId}</span> is officially active on Mannat Enterprise Pvt Ltd network.
             </p>
           </div>
 
@@ -1178,7 +1755,7 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-y-2 font-mono">
+            <div className="grid grid-cols-2 gap-y-2.5 font-mono">
               <div>
                 <span className="text-slate-400 font-sans block text-[10px]">Agent ID</span>
                 <span className="font-bold text-slate-900">{createdAgentRecord.agentId}</span>
@@ -1202,6 +1779,22 @@ export const AdminAgentOnboardingWizard: React.FC<WizardProps> = ({ onNavigate }
               <div>
                 <span className="text-slate-400 font-sans block text-[10px]">Default MPIN</span>
                 <span className="font-bold text-slate-900">{tempMpin}</span>
+              </div>
+              <div>
+                <span className="text-slate-400 font-sans block text-[10px]">Platform Fee per Txn</span>
+                <span className="font-bold text-indigo-700 font-mono">
+                  {createdAgentRecord.commissionSettings?.adminBillMarkupType === 'FLAT'
+                    ? `₹${createdAgentRecord.commissionSettings.adminBillMarkupValue.toFixed(2)} Flat (Default 10 INR)`
+                    : `${createdAgentRecord.commissionSettings?.adminBillMarkupValue}% Percentage Markup`}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-400 font-sans block text-[10px]">Agent Bill Commission</span>
+                <span className="font-bold text-emerald-700 font-mono">
+                  {createdAgentRecord.commissionSettings?.agentBillCommissionType === 'FLAT'
+                    ? `₹${createdAgentRecord.commissionSettings.agentBillCommissionValue.toFixed(2)} Flat`
+                    : `${createdAgentRecord.commissionSettings?.agentBillCommissionValue}%`}
+                </span>
               </div>
               <div>
                 <span className="text-slate-400 font-sans block text-[10px]">Commission Plan</span>

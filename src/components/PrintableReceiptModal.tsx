@@ -70,8 +70,8 @@ export const PrintableReceiptModal: React.FC<ReceiptProps> = ({
           <div id="printable-receipt" className="p-8 font-sans text-slate-800 text-xs">
             {/* Header */}
             <div className="border-b border-slate-200 pb-5 text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-600 text-white font-extrabold text-xl shadow-md mb-2">
-                SSE
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-900 text-white font-extrabold text-base shadow-sm mb-2 border border-slate-700">
+                MEPL
               </div>
               <h2 className="text-lg font-extrabold tracking-tight text-slate-950 uppercase">
                 {COMPANY_INFO.name}
@@ -80,9 +80,7 @@ export const PrintableReceiptModal: React.FC<ReceiptProps> = ({
                 {COMPANY_INFO.address}
               </p>
               <div className="flex items-center justify-center gap-4 text-[11px] text-slate-600 mt-1 font-mono">
-                <span>Helpline: +91 {COMPANY_INFO.mobile}</span>
-                <span>·</span>
-                <span>Email: {COMPANY_INFO.email}</span>
+                <span>Support Email: {COMPANY_INFO.email}</span>
               </div>
               <div className="mt-1 text-[10px] text-slate-400 font-mono">
                 GSTIN: {COMPANY_INFO.gstin}
@@ -222,12 +220,12 @@ export const PrintableReceiptModal: React.FC<ReceiptProps> = ({
             {/* Stamp & Footer */}
             <div className="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between">
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-md font-bold text-[10px] uppercase tracking-wider">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 border border-slate-300 text-slate-900 rounded-md font-bold text-[10px] uppercase tracking-wider">
+                  <ShieldCheck className="w-3.5 h-3.5 text-slate-700" />
                   <span>Verified & Approved</span>
                 </div>
-                <p className="text-[10px] text-slate-400">
-                  Authorized Signatory · Shree Shyam Enterprise Operations
+                <p className="text-[10px] text-slate-500">
+                  Authorized Signatory · Mannat Enterprise Operations
                 </p>
               </div>
 
@@ -286,8 +284,8 @@ export const PrintableReceiptModal: React.FC<ReceiptProps> = ({
         {/* Printable Area */}
         <div id="printable-receipt" className="p-8 font-sans text-slate-800 text-xs">
           <div className="border-b border-slate-200 pb-5 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-600 text-white font-extrabold text-xl shadow-md mb-2">
-              SSE
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-900 text-white font-extrabold text-base shadow-sm mb-2 border border-slate-700">
+              MEPL
             </div>
             <h2 className="text-lg font-extrabold tracking-tight text-slate-950 uppercase">
               {COMPANY_INFO.name}
@@ -296,9 +294,7 @@ export const PrintableReceiptModal: React.FC<ReceiptProps> = ({
               {COMPANY_INFO.address}
             </p>
             <div className="flex items-center justify-center gap-4 text-[11px] text-slate-600 mt-1 font-mono">
-              <span>Helpline: +91 {COMPANY_INFO.mobile}</span>
-              <span>·</span>
-              <span>Email: {COMPANY_INFO.email}</span>
+              <span>Support Email: {COMPANY_INFO.email}</span>
             </div>
             <div className="mt-1 text-[10px] text-slate-400 font-mono">
               GSTIN: {COMPANY_INFO.gstin}
@@ -434,17 +430,17 @@ export const PrintableReceiptModal: React.FC<ReceiptProps> = ({
 
           <div className="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-md font-bold text-[10px] uppercase tracking-wider">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 border border-slate-300 text-slate-900 rounded-md font-bold text-[10px] uppercase tracking-wider">
+                <ShieldCheck className="w-3.5 h-3.5 text-slate-700" />
                 <span>Verified Transaction</span>
               </div>
-              <p className="text-[10px] text-slate-400">
-                Shree Shyam Enterprise Digital Receipt
+              <p className="text-[10px] text-slate-500">
+                Mannat Enterprise Digital Receipt
               </p>
             </div>
 
             <div className="text-right text-[10px] text-slate-400">
-              <p>Generated by Shree Shyam Enterprise</p>
+              <p>Generated by Mannat Enterprise Pvt Ltd</p>
               <p>Authentic Digital Voucher</p>
             </div>
           </div>

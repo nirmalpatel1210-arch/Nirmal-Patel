@@ -27,14 +27,10 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, activePath, onN
   const {
     currentUser,
     role,
-    switchRole,
-    demoMode,
-    setDemoMode,
     notifications,
     markNotificationRead,
     markAllNotificationsRead,
     logout,
-    resetDemoData,
   } = useApp();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -62,18 +58,18 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, activePath, onN
     <header className="sticky top-0 z-30 bg-white border-b border-slate-200">
       {/* Top Announcement Bar (matching video) */}
       {showAnnouncement && (
-        <div className="bg-amber-500/10 border-b border-amber-500/20 text-amber-900 px-4 py-1.5 text-xs flex items-center justify-between font-medium">
+        <div className="bg-slate-100 border-b border-slate-200 text-slate-800 px-4 py-1.5 text-xs flex items-center justify-between font-medium">
           <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
-            <span className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide uppercase">
-              Announcements
+            <span className="bg-slate-800 text-white text-[10px] font-bold px-2 py-0.5 rounded tracking-wide uppercase">
+              Notice
             </span>
-            <span className="truncate">
-              {COMPANY_INFO.name} — Live Bill Payment, BBPS Utilities & Credit Card bill payment services are live & working fine. For instant load assistance call {COMPANY_INFO.mobile}.
+            <span className="truncate text-slate-700 text-[11px]">
+              {COMPANY_INFO.name} — BBPS Utilities, Domestic Money Transfer & Credit Card bill payments are fully active. Support Desk: {COMPANY_INFO.email}
             </span>
           </div>
           <button
             onClick={() => setShowAnnouncement(false)}
-            className="text-amber-800 hover:text-amber-950 font-bold ml-2 text-sm leading-none"
+            className="text-slate-500 hover:text-slate-800 font-bold ml-2 text-sm leading-none"
             title="Dismiss announcement"
           >
             ×
@@ -95,18 +91,20 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, activePath, onN
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
-                {role === 'admin' ? 'Super Admin Console' : 'Operator Console'}
+              <span className={`text-[11px] font-bold uppercase tracking-wider ${
+                role === 'admin' ? 'text-indigo-600' : 'text-emerald-600'
+              }`}>
+                {role === 'admin' ? 'Super Admin HQ Console' : 'Agent Business Terminal'}
               </span>
               <span className="text-slate-300">/</span>
               <h1 className="text-sm md:text-base font-bold text-slate-800 tracking-tight">
-                {role === 'admin' ? 'Admin Governance Portal' : 'Agent Dashboard'}
+                {role === 'admin' ? 'HQ Administration & Governance Panel' : 'Live Service Terminal'}
               </h1>
             </div>
           </div>
         </div>
 
-        {/* Right: Balances, Date, Demo Switcher, Notification, Profile */}
+        {/* Right: Balances, Date, Status Badge, Notification, Profile */}
         <div className="flex items-center gap-2 md:gap-4">
           {/* Date display (matching video) */}
           <div className="hidden xl:flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200">
@@ -154,34 +152,26 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, activePath, onN
             </div>
           )}
 
-          {/* Quick Demo Switcher (Agent <-> Admin) */}
-          <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs font-medium">
-            <button
-              onClick={() => switchRole('agent')}
-              className={`px-2.5 py-1 rounded transition-colors ${
-                role === 'agent' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
-              }`}
+          {/* Role Status Badge (Final Production Mode) */}
+          {role === 'admin' ? (
+            <div
+              title="HQ Master Administration Console · Authorized Access Only"
+              className="flex items-center gap-1.5 bg-indigo-50 text-indigo-900 border border-indigo-300 px-3 py-1.5 rounded-lg text-xs font-black tracking-wide shadow-2xs"
             >
-              Agent View
-            </button>
-            <button
-              onClick={() => switchRole('admin')}
-              className={`px-2.5 py-1 rounded transition-colors ${
-                role === 'admin' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
-              }`}
+              <ShieldCheck className="w-4 h-4 text-indigo-700" />
+              <span className="hidden sm:inline">HQ ADMIN CONSOLE</span>
+              <span className="sm:hidden">ADMIN</span>
+            </div>
+          ) : (
+            <div
+              title="Active Production Retail Terminal"
+              className="flex items-center gap-1.5 bg-emerald-50 text-emerald-950 border border-emerald-300 px-3 py-1.5 rounded-lg text-xs font-black tracking-wide shadow-2xs"
             >
-              Admin View
-            </button>
-          </div>
-
-          {/* Demo Mode Badge */}
-          <div
-            title="Demo Mode is Active - Safe sandbox environment"
-            className="flex items-center gap-1.5 bg-amber-100 text-amber-900 border border-amber-300/80 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider"
-          >
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            <span className="hidden md:inline">DEMO MODE</span>
-          </div>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="hidden sm:inline">AGENT TERMINAL</span>
+              <span className="sm:hidden">TERMINAL</span>
+            </div>
+          )}
 
           {/* Notifications Dropdown */}
           <div className="relative">
@@ -332,17 +322,6 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, activePath, onN
                   >
                     <ShieldCheck className="w-4 h-4 text-slate-400" />
                     <span>Security & Credentials</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      resetDemoData();
-                      setShowProfileMenu(false);
-                    }}
-                    className="w-full px-4 py-2 text-left text-amber-700 hover:bg-amber-50 flex items-center gap-2"
-                  >
-                    <RefreshCw className="w-4 h-4 text-amber-500" />
-                    <span>Reset Demo Sandbox</span>
                   </button>
                 </div>
 
